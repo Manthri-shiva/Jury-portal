@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jury Portal — Evaluate</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="rank-mark">JP</div>
+      <div>
+        <div class="title">Jury Portal</div>
+        <div class="subtitle" id="sidebar-venue">—</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-view="list"><span class="dot"></span>My Teams</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="session-chip">
+        <div class="avatar" id="session-initial">J</div>
+        <div>
+          <div class="name" id="session-name">—</div>
+          <div class="role">Jury</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-block btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===== TEAM LIST VIEW ===== -->
+    <section class="section active" id="view-list">
+      <div class="page-header">
+        <div>
+          <div class="eyebrow"><span class="live-dot"></span> Live</div>
+          <h1>Your Assigned Teams</h1>
+          <p class="desc">Evaluate each team once. Submitted scores lock unless an admin unlocks them.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span class="icon">🔍</span><input id="team-search" placeholder="Search your teams…" /></div>
+      </div>
+      <div class="grid grid-3" id="teams-grid"></div>
+    </section>
+
+    <!-- ===== EVALUATE VIEW ===== -->
+    <section class="section" id="view-evaluate">
+      <button class="btn btn-ghost btn-sm" id="back-btn" style="margin-bottom:18px;">← Back to my teams</button>
+
+      <div class="page-header">
+        <div>
+          <div class="eyebrow" id="eval-problem-code">—</div>
+          <h1 id="eval-team-name">—</h1>
+          <p class="desc" id="eval-venue-name">—</p>
+        </div>
+        <div id="eval-status-badge"></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1.4fr 1fr; gap:20px; align-items:start;">
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:10px;">Problem Statement</h3>
+          <p id="eval-problem-title" style="font-weight:600;margin:0 0 8px 0;"></p>
+          <p id="eval-problem-desc" style="color:var(--text-muted);font-size:14px;line-height:1.6;margin:0;"></p>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:6px;">Scoring</h3>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px 0;">Total possible: <span id="eval-total-max" class="mono"></span> marks</p>
+          <div id="eval-criteria-list"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label>Comments (optional)</label>
+          <textarea id="eval-comment" rows="3" placeholder="Notes for the admin or your own records…"></textarea>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-size:12px;color:var(--text-muted);">Live Total</span>
+            <div id="eval-live-total" style="font-family:var(--display);font-size:26px;font-weight:700;">0</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div class="error-text" id="eval-error" style="margin:0;"></div>
+            <button class="btn btn-primary" id="eval-submit-btn">Submit Evaluation</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast-host"></div>
+
+<script src="assets/store.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/jury.js"></script>
+</body>
+</html>

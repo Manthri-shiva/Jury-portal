@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jury Portal — Admin</title>
+<link rel="stylesheet" href="assets/style.css" />
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="rank-mark">JP</div>
+      <div>
+        <div class="title">Jury Portal</div>
+        <div class="subtitle">Admin Console</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" data-section="dashboard"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item" data-section="teams"><span class="dot"></span>Teams</div>
+      <div class="nav-item" data-section="juries"><span class="dot"></span>Juries</div>
+      <div class="nav-item" data-section="venues"><span class="dot"></span>Venues</div>
+      <div class="nav-item" data-section="criteria"><span class="dot"></span>Scoring Criteria</div>
+      <div class="nav-item" data-section="leaderboard"><span class="dot"></span>Leaderboard</div>
+      <div class="nav-item" data-section="audit"><span class="dot"></span>Audit Log</div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="session-chip">
+        <div class="avatar" id="session-initial">A</div>
+        <div>
+          <div class="name" id="session-name">—</div>
+          <div class="role">Admin</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-block btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="section active" id="section-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="eyebrow"><span class="live-dot"></span> Live</div>
+          <h1>Event Dashboard</h1>
+          <p class="desc">Overview of evaluation progress across all venues.</p>
+        </div>
+        <button class="btn btn-ghost" id="export-excel-btn">⇩ Export Results (.xlsx)</button>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom:24px;">
+        <div class="card stat-card"><div class="stat-label">Total Teams</div><div class="stat-value" id="stat-total">0</div></div>
+        <div class="card stat-card"><div class="stat-label">Completed</div><div class="stat-value accent" id="stat-completed">0</div></div>
+        <div class="card stat-card"><div class="stat-label">Pending</div><div class="stat-value warn" id="stat-pending">0</div></div>
+        <div class="card stat-card"><div class="stat-label">Active Juries</div><div class="stat-value" id="stat-juries">0</div></div>
+      </div>
+
+      <h3 style="margin-bottom:12px;font-size:16px;">Venue Progress</h3>
+      <div class="grid grid-2" id="venue-progress-grid" style="margin-bottom:28px;"></div>
+
+      <h3 style="margin-bottom:12px;font-size:16px;">Top Teams</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Team</th><th>Venue</th><th>Score</th><th>Status</th></tr></thead>
+          <tbody id="dashboard-leaderboard-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= TEAMS ================= -->
+    <section class="section" id="section-teams">
+      <div class="page-header">
+        <div><div class="eyebrow">Manage</div><h1>Teams</h1><p class="desc">All registered teams and their evaluation progress.</p></div>
+        <button class="btn btn-primary" id="add-team-btn">+ Add Team</button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span class="icon">🔍</span><input id="team-search" placeholder="Search team name or number…" /></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Team</th><th>Venue</th><th>Problem</th><th>Juries</th><th>Score</th><th>Status</th><th></th></tr></thead>
+          <tbody id="teams-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= JURIES ================= -->
+    <section class="section" id="section-juries">
+      <div class="page-header">
+        <div><div class="eyebrow">Manage</div><h1>Juries</h1><p class="desc">Jury members and their assigned evaluation load.</p></div>
+        <button class="btn btn-primary" id="add-jury-btn">+ Add Jury</button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span class="icon">🔍</span><input id="jury-search" placeholder="Search name or email…" /></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Username</th><th>Venue</th><th>Assigned</th><th>Completed</th><th>Status</th><th></th></tr></thead>
+          <tbody id="juries-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= VENUES ================= -->
+    <section class="section" id="section-venues">
+      <div class="page-header">
+        <div><div class="eyebrow">Manage</div><h1>Venues</h1><p class="desc">Evaluation rooms and their capacity.</p></div>
+        <button class="btn btn-primary" id="add-venue-btn">+ Add Venue</button>
+      </div>
+      <div class="grid grid-3" id="venues-grid"></div>
+    </section>
+
+    <!-- ================= CRITERIA ================= -->
+    <section class="section" id="section-criteria">
+      <div class="page-header">
+        <div><div class="eyebrow">Manage</div><h1>Scoring Criteria</h1><p class="desc">Total possible marks: <strong id="total-marks">0</strong></p></div>
+        <button class="btn btn-primary" id="add-criterion-btn">+ Add Criterion</button>
+      </div>
+      <div class="card" id="criteria-list"></div>
+    </section>
+
+    <!-- ================= LEADERBOARD ================= -->
+    <section class="section" id="section-leaderboard">
+      <div class="page-header">
+        <div><div class="eyebrow"><span class="live-dot"></span> Live</div><h1>Leaderboard</h1><p class="desc">Ranked by average score across submitted evaluations.</p></div>
+        <button class="btn btn-ghost" id="refresh-leaderboard-btn">↻ Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Team</th><th>Venue</th><th>Problem</th><th>Score</th><th>Status</th></tr></thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= AUDIT LOG ================= -->
+    <section class="section" id="section-audit">
+      <div class="page-header">
+        <div><div class="eyebrow">History</div><h1>Audit Log</h1><p class="desc">Every sensitive action, in order.</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Reason</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<div class="modal-backdrop" id="modal-team">
+  <div class="modal">
+    <h3 id="team-modal-title">Add Team</h3>
+    <input type="hidden" id="team-id" />
+    <div class="field"><label>Team Number</label><input id="team-number" placeholder="T-105" /></div>
+    <div class="field"><label>Team Name</label><input id="team-name" placeholder="e.g. ByteForce" /></div>
+    <div class="field"><label>Venue</label><select id="team-venue"></select></div>
+    <div class="field"><label>Problem Statement</label><select id="team-problem"></select></div>
+    <div class="error-text" id="team-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-team')">Cancel</button>
+      <button class="btn btn-primary" id="team-save-btn">Save Team</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-jury">
+  <div class="modal">
+    <h3 id="jury-modal-title">Add Jury</h3>
+    <input type="hidden" id="jury-id" />
+    <div class="field"><label>Full Name</label><input id="jury-name" placeholder="e.g. Dr. Ananya Rao" /></div>
+    <div class="field"><label>Username / Email</label><input id="jury-username" placeholder="jury3@example.com" /></div>
+    <div class="field" id="jury-password-field"><label>Password</label><input id="jury-password" type="text" placeholder="Set a password" /></div>
+    <div class="field"><label>Venue</label><select id="jury-venue"></select></div>
+    <div class="field" id="jury-active-field" style="display:none;">
+      <label>Status</label>
+      <select id="jury-active"><option value="true">Active</option><option value="false">Inactive</option></select>
+    </div>
+    <div class="error-text" id="jury-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-jury')">Cancel</button>
+      <button class="btn btn-primary" id="jury-save-btn">Save Jury</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-venue">
+  <div class="modal">
+    <h3 id="venue-modal-title">Add Venue</h3>
+    <input type="hidden" id="venue-id" />
+    <div class="field"><label>Venue Name</label><input id="venue-name" placeholder="e.g. Venue C — Auditorium" /></div>
+    <div class="field"><label>Capacity</label><input id="venue-capacity" type="number" min="1" placeholder="50" /></div>
+    <div class="error-text" id="venue-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-venue')">Cancel</button>
+      <button class="btn btn-primary" id="venue-save-btn">Save Venue</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-criterion">
+  <div class="modal">
+    <h3 id="criterion-modal-title">Add Criterion</h3>
+    <input type="hidden" id="criterion-id" />
+    <div class="field"><label>Name</label><input id="criterion-name" placeholder="e.g. Innovation" /></div>
+    <div class="field"><label>Max Marks</label><input id="criterion-max" type="number" min="1" placeholder="25" /></div>
+    <div class="field"><label>Display Order</label><input id="criterion-order" type="number" min="1" placeholder="1" /></div>
+    <div class="field" id="criterion-active-field" style="display:none;">
+      <label>Status</label>
+      <select id="criterion-active"><option value="true">Active</option><option value="false">Inactive</option></select>
+    </div>
+    <div class="error-text" id="criterion-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-criterion')">Cancel</button>
+      <button class="btn btn-primary" id="criterion-save-btn">Save Criterion</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-unlock">
+  <div class="modal">
+    <h3>Unlock Evaluation</h3>
+    <input type="hidden" id="unlock-eval-id" />
+    <p style="font-size:13px;color:var(--text-muted);margin-top:-8px;">This lets the jury edit and resubmit their score. Provide a reason for the audit log.</p>
+    <div class="field"><label>Reason</label><textarea id="unlock-reason" rows="3" placeholder="e.g. Jury reported a data-entry mistake"></textarea></div>
+    <div class="error-text" id="unlock-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-unlock')">Cancel</button>
+      <button class="btn btn-danger" id="unlock-save-btn">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-team-detail">
+  <div class="modal" style="max-width:560px;">
+    <h3 id="team-detail-title">Team Detail</h3>
+    <div id="team-detail-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-team-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-host"></div>
+
+<script src="assets/store.js"></script>
+<script src="assets/ui.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

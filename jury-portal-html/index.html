@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jury Portal — Sign In</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+      <div class="rank-mark">JP</div>
+      <div>
+        <div style="font-family:var(--display);font-weight:700;font-size:19px;">Jury Portal</div>
+        <div style="font-size:12px;color:var(--text-muted);">Hackathon Evaluation System</div>
+      </div>
+    </div>
+
+    <h2 style="font-size:20px;margin-bottom:6px;">Sign in</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin:0 0 24px 0;">
+      Admins use a username. Jury members use their email.
+    </p>
+
+    <form id="login-form">
+      <div class="field">
+        <label for="username">Username or Email</label>
+        <input id="username" type="text" autocomplete="username" required placeholder="admin  or  jury1@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+      </div>
+      <div class="error-text" id="login-error"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-btn" style="margin-top:6px;">
+        Sign In
+      </button>
+    </form>
+
+    <div style="margin-top:26px;padding-top:20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-faint);">
+      Demo credentials — Admin: <span class="mono">admin / admin123</span><br />
+      Jury: <span class="mono">jury1@example.com / jury123</span>
+    </div>
+  </div>
+</div>
+
+<script src="assets/store.js"></script>
+<script>
+  // If already logged in, skip straight to the right dashboard.
+  (function () {
+    const session = Store.getSession();
+    if (session) window.location.href = session.role === 'ADMIN' ? 'admin.html' : 'jury.html';
+  })();
+
+  const form = document.getElementById('login-form');
+  const errorEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    errorEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const result = Store.login(username, password);
+
+    if (result.error) {
+      errorEl.textContent = result.error;
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+    window.location.href = result.session.role === 'ADMIN' ? 'admin.html' : 'jury.html';
+  });
+</script>
+</body>
+</html>
